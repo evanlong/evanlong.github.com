@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog Test</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 1140px Grid styles for IE -->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_1140.css" type="text/css" media="screen" /><![endif]-->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_reset.css" type="text/css" media="screen" /><![endif]-->
+
+    <!-- The 1140px Grid - http://cssgrid.net/ -->
+    <link rel="stylesheet" href="../static/css/1140.css" type="text/css" media="screen" />
+
+    <link rel="alternate" type="application/rss+xml" title="infectmac - RSS" href="../rss.xml" />
+
+    <!-- Your styles -->
+    <link rel="stylesheet" href="../static/css/styles.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../static/css/twilight_pygments.css" type="text/css" media="screen" />
+
+    <!--css3-mediaqueries-js - http://code.google.com/p/css3-mediaqueries-js/ - Enables media queries in some unsupported browsers-->
+    <script type="text/javascript" src="../static/js/css3-mediaqueries.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-header">
+          infectmac.com<br/>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol section">
+          <span class="section-header"><a href="../index.html">Blog</a></span>
+          <span class="section-header"><a href="../posts.html">Posts</a></span>
+          <span class="section-header"><a href="../about.html">About</a></span>
+        </div>
+      </div>
+
+      
+  <!-- Posts -->
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2011-12-20-6-3-have-you-tried-turning-it-on-and-off-again:-libxpc.html">have you tried turning it on and off again: libxpc</a></div>
+      <div class="post-date">December 20, 2011</div>
+      <p>There was a weird hang we were seeing in <a href="http://itunes.apple.com/us/app/float-reader/id447992005?ls=1&amp;mt=8">Float</a>. It would occur anytime a text field became the first responder. The issue could be reproduced with our development build as well as the live app store build. The hang had the following frames at the top of the callstack for the main thread:</p>
+<div class="codehilite"><pre><span class="mi">0</span>   <span class="n">libsystem_kernel</span><span class="o">.</span><span class="n">dylib</span>          <span class="n">mach_msg_trap</span> <span class="p">(</span><span class="n">in</span> <span class="n">libsystem_kernel</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span>
+<span class="mi">1</span>   <span class="n">libsystem_kernel</span><span class="o">.</span><span class="n">dylib</span>          <span class="n">mach_msg</span> <span class="p">(</span><span class="n">in</span> <span class="n">libsystem_kernel</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span>
+<span class="mi">2</span>   <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span>                    <span class="n">_xpc_connection_check_in</span> <span class="p">(</span><span class="n">in</span> <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">152</span>
+<span class="mi">3</span>   <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span>                    <span class="n">_xpc_connection_init</span> <span class="p">(</span><span class="n">in</span> <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1032</span>
+<span class="mi">4</span>   <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span>                    <span class="n">_xpc_connection_wakeup2</span> <span class="p">(</span><span class="n">in</span> <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">774</span>
+<span class="mi">5</span>   <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span>                    <span class="n">_xpc_connection_wakeup</span> <span class="p">(</span><span class="n">in</span> <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">62</span>
+<span class="mi">6</span>   <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span>                    <span class="n">_xpc_connection_send_registration</span> <span class="p">(</span><span class="n">in</span> <span class="n">libxpc</span><span class="o">.</span><span class="n">dylib</span><span class="p">)</span> <span class="o">+</span> <span class="mi">24</span>
+
+<span class="c1">#If you are reading this... reboot your iOS device. Your problems will probably go away.</span>
+</pre></div>
+
+
+<p>Google didn't return useful results for some the various <code>_xpc*</code> function names. Although the libxpc keyword seemed to be associated with "hang." I went and grabbed another 4S. Fortunately, the issue did not repro. From what I could tell libxpc is related to remote debugging. However, it never shutdown properly and was left running to break as it pleased. After a quick reboot of the device we were back to normal.</p>
+<p>Seeing as Google was pretty sparse on this issue I hope this will save others some time.</p>
+    </div>
+  </div>
+  
+
+  <div class="row">
+    <div class="twocol"></div>
+    <div class="eightcol newer-older">
+      <div class="newer-posts" style="visibility:hidden;"><a href="../">Newer</a></div>
+      <div class="older-posts" style="visibility:visible;"><a href="../posts/2011-2-14-3-39-good-tools.html">Older</a></div>
+    </div>
+  </div>
+
+
+      <!-- Footer -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-footer">
+          Copyright © 2012 - Evan Long
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>

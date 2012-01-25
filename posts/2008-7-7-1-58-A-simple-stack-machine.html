@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog Test</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 1140px Grid styles for IE -->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_1140.css" type="text/css" media="screen" /><![endif]-->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_reset.css" type="text/css" media="screen" /><![endif]-->
+
+    <!-- The 1140px Grid - http://cssgrid.net/ -->
+    <link rel="stylesheet" href="../static/css/1140.css" type="text/css" media="screen" />
+
+    <link rel="alternate" type="application/rss+xml" title="infectmac - RSS" href="../rss.xml" />
+
+    <!-- Your styles -->
+    <link rel="stylesheet" href="../static/css/styles.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../static/css/twilight_pygments.css" type="text/css" media="screen" />
+
+    <!--css3-mediaqueries-js - http://code.google.com/p/css3-mediaqueries-js/ - Enables media queries in some unsupported browsers-->
+    <script type="text/javascript" src="../static/js/css3-mediaqueries.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-header">
+          infectmac.com<br/>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol section">
+          <span class="section-header"><a href="../index.html">Blog</a></span>
+          <span class="section-header"><a href="../posts.html">Posts</a></span>
+          <span class="section-header"><a href="../about.html">About</a></span>
+        </div>
+      </div>
+
+      
+  <!-- Posts -->
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-7-7-1-58-A-simple-stack-machine.html">A simple stack machine</a></div>
+      <div class="post-date">July 07, 2008</div>
+      <p>A lot of popular virtual machines are stack based. The instruction sets take their inputs from a stack and then place their outputs on the same stack. It's pretty simple at face value but the virtual machines end up doing a lot of fancy things behind the scenes to make the code run fast. </p>
+<p>Today I implement a REALLY REALLY BASIC stack based virtual machine that does basic math.</p>
+<div class="codehilite"><pre><span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">def</span> <span class="nf">e</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">s</span>
+    <span class="n">f</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;add&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()+s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;dup&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s[-1])&#39;</span><span class="p">,</span>
+       <span class="s">&#39;sub&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()-s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;mul&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()*s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;div&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()/s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;peak&#39;</span> <span class="p">:</span> <span class="s">&#39;print s[-1]&#39;</span><span class="p">,</span>
+       <span class="s">&#39;out&#39;</span> <span class="p">:</span> <span class="s">&#39;print s.pop()&#39;</span>
+       <span class="p">}[</span><span class="n">cmd</span><span class="p">]</span>
+    <span class="k">exec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;dup&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;mul&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;sub&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;peak&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The key of the dictionary is the instruction and the value defines what the instruction does.</p>
+    </div>
+  </div>
+  
+
+  <div class="row">
+    <div class="twocol"></div>
+    <div class="eightcol newer-older">
+      <div class="newer-posts" style="visibility:visible;"><a href="../posts/2008-7-13-5-22-chipmark2rss.html">Newer</a></div>
+      <div class="older-posts" style="visibility:visible;"><a href="../posts/2008-7-3-23-16-my_itoa-and-strrev.html">Older</a></div>
+    </div>
+  </div>
+
+
+      <!-- Footer -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-footer">
+          Copyright © 2012 - Evan Long
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>

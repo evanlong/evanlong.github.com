@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog Test</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 1140px Grid styles for IE -->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_1140.css" type="text/css" media="screen" /><![endif]-->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_reset.css" type="text/css" media="screen" /><![endif]-->
+
+    <!-- The 1140px Grid - http://cssgrid.net/ -->
+    <link rel="stylesheet" href="../static/css/1140.css" type="text/css" media="screen" />
+
+    <link rel="alternate" type="application/rss+xml" title="infectmac - RSS" href="../rss.xml" />
+
+    <!-- Your styles -->
+    <link rel="stylesheet" href="../static/css/styles.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../static/css/twilight_pygments.css" type="text/css" media="screen" />
+
+    <!--css3-mediaqueries-js - http://code.google.com/p/css3-mediaqueries-js/ - Enables media queries in some unsupported browsers-->
+    <script type="text/javascript" src="../static/js/css3-mediaqueries.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-header">
+          infectmac.com<br/>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol section">
+          <span class="section-header"><a href="../index.html">Blog</a></span>
+          <span class="section-header"><a href="../posts.html">Posts</a></span>
+          <span class="section-header"><a href="../about.html">About</a></span>
+        </div>
+      </div>
+
+      
+  <!-- Posts -->
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-6-29-1-28-interview-prep-part-6-&-7.html">interview prep part 6 & 7</a></div>
+      <div class="post-date">June 29, 2008</div>
+      <p>Today is a two-for-one deal since I forgot to post anything yesterday.</p>
+<blockquote>
+<p>Write a Python decorator to add <a href="http://en.wikipedia.org/wiki/Memoization">http://en.wikipedia.org/wiki/Memoization</a> to any function.</p>
+</blockquote>
+<p>Python decorators are very nice. Django uses them for users to specify which 
+views require login and things of that nature. Decorators give the ability to 
+modify how a function will behave. Now memoization is a technique that can be 
+used to speed up a recursive solution to a dynamic programming problem. Today 
+my example isn't really a dynamic programming problem (because I am a bit 
+lazy) but will illustrate how much of a speed up you can get by using 
+memoization.</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">mem</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+  <span class="n">mem</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">def</span> <span class="nf">mod</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">key</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">((</span><span class="n">args</span><span class="p">,</span><span class="nb">tuple</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span><span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">])))</span>
+      <span class="k">if</span> <span class="n">mem</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+          <span class="k">return</span>  <span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+      <span class="k">else</span><span class="p">:</span>
+          <span class="n">val</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+          <span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+          <span class="k">return</span> <span class="n">val</span>
+  <span class="k">return</span> <span class="n">mod</span>
+
+<span class="nd">@mem</span>
+<span class="k">def</span> <span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span>  <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">return</span> <span class="mi">1</span>
+  <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">fib</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="n">t2</span><span class="o">-</span><span class="n">t1</span>
+</pre></div>
+
+
+<p>With the @mem decorating the function it takes: 0.0002 seconds to compute fib(35). Without @mem it takes about 10 seconds. (Results may vary depending on your computer).</p>
+<p>Now for the second part:</p>
+<blockquote>
+<p>You are on an alien world preparing for a potential invasion. The planet has some sort of <a href="http://www.memory-alpha.org/en/wiki/Dampening_field">dampening field</a> covering it so you cannot use any sort of wireless communication. Your mission is to connect all the bases under your command with the least amount of wire. Every base must be able to communicate to every other base. A base will be able to communicate with any other base if a path exists between the two.</p>
+</blockquote>
+<p>This can be solved by creating a minimum spanning tree.</p>
+<div class="codehilite"><pre><span class="n">bases</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c">#distance, #start base, #end base</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">wire</span><span class="p">(</span><span class="n">num_bases</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">base_to_set</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">connections</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_bases</span><span class="p">):</span>
+        <span class="n">base_to_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">base1_set</span> <span class="o">=</span> <span class="n">base_to_set</span><span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">base2_set</span> <span class="o">=</span> <span class="n">base_to_set</span><span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base1_set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">base2_set</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">merge</span> <span class="o">=</span> <span class="n">base1_set</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">base2_set</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">:</span>
+            <span class="n">base_to_set</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge</span>
+        <span class="n">cost</span> <span class="o">+=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">connections</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">connections</span><span class="p">,</span><span class="n">cost</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The function takes in the number of bases and a list of tuples that contain the cost and two base ids indicating they are connected.</p>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-6-27-2-16-interview-prep-part-5.html">interview prep part 5</a></div>
+      <div class="post-date">June 27, 2008</div>
+      <p>The problem today is to find "dead" nodes in a graph. This sort of algorithm could be applied to all sorts of things such as eliminating the unreachable states in a DFA or unreachable code in a compiler. </p>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">State</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">dead</span><span class="p">(</span><span class="n">begins</span><span class="p">,</span> <span class="nb">all</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">visited</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">outs</span><span class="p">:</span>
+            <span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">begins</span><span class="p">:</span>
+        <span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="n">removable</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">all</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">visited</span><span class="p">:</span>
+            <span class="n">removable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">removable</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+        <span class="n">ss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">State</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">ss</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">ss</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ss</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">print</span> <span class="n">dead</span><span class="p">([</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ss</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">print</span> <span class="n">dead</span><span class="p">([</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ss</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">print</span> <span class="n">dead</span><span class="p">([</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ss</span><span class="p">)</span>
+</pre></div>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-6-25-3-38-interview-prep-part-3.html">interview prep part 3</a></div>
+      <div class="post-date">June 25, 2008</div>
+      <p>I have been asked to do basic string problems before. The problem for today:</p>
+<blockquote>
+<p>Given a string, print out each character that appears, the number of times that it appears and it must be done in the order the characters appear in the original string. And it must be done in O(n) time.</p>
+</blockquote>
+<div class="codehilite"><pre><span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+   <span class="n">seenMap</span> <span class="o">=</span> <span class="p">{}</span>
+   <span class="n">orderList</span> <span class="o">=</span> <span class="p">[]</span>
+
+   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+       <span class="k">if</span> <span class="ow">not</span> <span class="n">seenMap</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+           <span class="n">orderList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+           <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+       <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">orderList</span><span class="p">:</span>
+       <span class="k">print</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+</pre></div>
+
+
+<p>The important thing here is to do it in O(n) time. It is easy to get trapped and do this in polynomial time. The trick here is to use a list to store the order that characters appear and to use a dictionary to keep track of if a character has been seen and how many times it has been seen. Provided that the has_key function has O(1) running time my algorithm is O(n).</p>
+    </div>
+  </div>
+  
+
+  <div class="row">
+    <div class="twocol"></div>
+    <div class="eightcol newer-older">
+      <div class="newer-posts" style="visibility:visible;"><a href="../pages/7.html">Newer</a></div>
+      <div class="older-posts" style="visibility:visible;"><a href="../pages/9.html">Older</a></div>
+    </div>
+  </div>
+
+
+      <!-- Footer -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-footer">
+          Copyright © 2012 - Evan Long
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>

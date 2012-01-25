@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog Test</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 1140px Grid styles for IE -->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_1140.css" type="text/css" media="screen" /><![endif]-->
+    <!--[if lte IE 9]><link rel="stylesheet" href="../static/css/ie_reset.css" type="text/css" media="screen" /><![endif]-->
+
+    <!-- The 1140px Grid - http://cssgrid.net/ -->
+    <link rel="stylesheet" href="../static/css/1140.css" type="text/css" media="screen" />
+
+    <link rel="alternate" type="application/rss+xml" title="infectmac - RSS" href="../rss.xml" />
+
+    <!-- Your styles -->
+    <link rel="stylesheet" href="../static/css/styles.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../static/css/twilight_pygments.css" type="text/css" media="screen" />
+
+    <!--css3-mediaqueries-js - http://code.google.com/p/css3-mediaqueries-js/ - Enables media queries in some unsupported browsers-->
+    <script type="text/javascript" src="../static/js/css3-mediaqueries.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-header">
+          infectmac.com<br/>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol section">
+          <span class="section-header"><a href="../index.html">Blog</a></span>
+          <span class="section-header"><a href="../posts.html">Posts</a></span>
+          <span class="section-header"><a href="../about.html">About</a></span>
+        </div>
+      </div>
+
+      
+  <!-- Posts -->
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2011-2-3-1-49-phantom-mapkit-polylines.html">phantom mapkit polylines</a></div>
+      <div class="post-date">February 03, 2011</div>
+      <p>I was toying around with MapKit today and I am pretty sure I found a bug. MapKit renders an extra line along the equator if a polyline's point has a latitude of zero or an extra line along the prime meridian if its longitude is zero AND if the line width is less than or equal to 1.0. The code snippet to reproduce the issue can be found here:</p>
+<div class="codehilite"><pre><span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nl">viewWillAppear:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="n">animated</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nl">viewWillAppear:</span><span class="n">animated</span><span class="p">];</span>
+    <span class="n">CLLocationCoordinate2D</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">latitude</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">longitude</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">latitude</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span><span class="p">;</span>
+    <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">longitude</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="n">MKPolyline</span><span class="o">*</span> <span class="n">polyline</span> <span class="o">=</span> <span class="p">[</span><span class="n">MKPolyline</span> <span class="nl">polylineWithCoordinates:</span><span class="n">points</span> <span class="nl">count:</span><span class="mi">2</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">mapView</span> <span class="nl">addOverlay:</span><span class="n">polyline</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">mapView</span> <span class="nl">setRegion:</span><span class="n">MKCoordinateRegionMake</span><span class="p">(</span><span class="n">CLLocationCoordinate2DMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">MKCoordinateSpanMake</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))];</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="n">MKOverlayView</span><span class="o">*</span><span class="p">)</span><span class="nl">mapView:</span><span class="p">(</span><span class="n">MKMapView</span> <span class="o">*</span><span class="p">)</span><span class="n">mapView</span> <span class="nl">viewForOverlay:</span><span class="p">(</span><span class="kt">id</span> <span class="o">&lt;</span><span class="n">MKOverlay</span><span class="o">&gt;</span><span class="p">)</span><span class="n">overlay</span>
+<span class="p">{</span>
+    <span class="n">MKPolylineView</span><span class="o">*</span> <span class="n">polylineView</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MKPolylineView</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithPolyline:</span><span class="n">overlay</span><span class="p">];</span>
+    <span class="n">polylineView</span><span class="p">.</span><span class="n">lineWidth</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">polylineView</span><span class="p">.</span><span class="n">strokeColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="n">redColor</span><span class="p">];</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">polylineView</span> <span class="n">autorelease</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>And also a screenshot of the result:</p>
+<p><img alt="phantom" src="../static/img/phantom-lines.png" /></p>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2011-1-31-8-28-the-great-uitableview-race.html">the great uitableview race</a></div>
+      <div class="post-date">January 31, 2011</div>
+      <p>For the iTunes U course on iOS programming I followed along with the homework assignments. The last assignment was a Flickr app that shows photos at popular geotagged locations. I had an issue with UITableViewCell reuse and background threads populating the thumbnail image that I thought was worth sharing.   On iOS in order to improve performance some of the different libraries like UIKit and MapKit have the ability to reuse UI elements once they are no longer on screen. When reuse occurs it is up to the developer to provide new data for the UI element.  My problem was that two or more asynchronous operations could change the same table cell. One solution would be to stop reusing table cells but that is not ideal. As long as I can identify which image should be shown in the cell at a given time I can make sure the correct asynchronous operation updates the cell. Since UITableViewCell derives from UIView it has the tag property which is a NSInteger. The UITableView represents an array of data from Flickr. Before making the asynchronous call I set the cell’s tag to the index in that array it currently represents. Then in the callback function I only update the cell if its tag matches the index for which the asynchronous call was made.   Without this change in place it is possible to scroll through the list rapidly and see the thumbnail change two or three times for a cell while the remaining thumbnail downloads finish. But the last update could be the wrong thumbnail. The code itself is simple and can be found here: </p>
+<div class="codehilite"><pre><span class="o">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nl">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="n">tableView</span> <span class="nl">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="n">indexPath</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">CellIdentifier</span> <span class="o">=</span> <span class="s">@&quot;Cell&quot;</span><span class="p">;</span>
+
+    <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="n">CellIdentifier</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">cell</span> <span class="o">==</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">UITableViewCell</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithStyle:</span><span class="n">UITableViewCellStyleSubtitle</span> <span class="nl">reuseIdentifier:</span><span class="n">CellIdentifier</span><span class="p">]</span> <span class="n">autorelease</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="n">NSDictionary</span><span class="o">*</span> <span class="n">pictObj</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">pictures</span> <span class="nl">objectAtIndex:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+    <span class="n">NSString</span><span class="o">*</span> <span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="n">pictObj</span> <span class="nl">objectForKey:</span><span class="s">@&quot;title&quot;</span><span class="p">];</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="n">title</span> <span class="n">length</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="s">@&quot;(no title)&quot;</span> <span class="o">:</span> <span class="n">title</span><span class="p">;</span>
+    <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">title</span><span class="p">;</span>
+    <span class="n">cell</span><span class="p">.</span><span class="n">detailTextLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[[</span><span class="n">pictObj</span> <span class="nl">objectForKey:</span><span class="s">@&quot;description&quot;</span><span class="p">]</span> <span class="nl">objectForKey:</span><span class="s">@&quot;_content&quot;</span><span class="p">];</span>
+    <span class="n">cell</span><span class="p">.</span><span class="n">accessoryType</span> <span class="o">=</span> <span class="n">UITableViewCellAccessoryDisclosureIndicator</span><span class="p">;</span>
+
+    <span class="c1">//identify which image the cell should be displaying right now</span>
+    <span class="n">cell</span><span class="p">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">;</span>
+
+    <span class="n">Photo</span><span class="o">*</span> <span class="n">photo</span> <span class="o">=</span> <span class="p">[</span><span class="n">Photo</span> <span class="nl">photoWithFlickrData:</span><span class="n">pictObj</span> <span class="nl">inManagedObjectContext:</span><span class="n">context</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">photo</span><span class="p">.</span><span class="n">thumbnail</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cell</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIImage</span> <span class="nl">imageWithData:</span><span class="n">photo</span><span class="p">.</span><span class="n">thumbnail</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">cell</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">photo</span> <span class="nl">thumbnailWithBlock:</span><span class="o">^</span><span class="p">(</span><span class="n">UIImage</span><span class="o">*</span> <span class="n">image</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//check to make sure the image should be updated</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">cell</span><span class="p">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">cell</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">;</span>
+                <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span> <span class="nl">reloadRowsAtIndexPaths:</span><span class="p">[</span><span class="n">NSArray</span> <span class="nl">arrayWithObject:</span><span class="n">indexPath</span><span class="p">]</span> <span class="nl">withRowAnimation:</span><span class="n">UITableViewRowAnimationNone</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}];</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2011-1-24-7-28-silly-apple-ui.html">silly apple ui</a></div>
+      <div class="post-date">January 24, 2011</div>
+      <p>I have been working my way through the Stanford iOS programming course. It’s been my biggest exposure to the Apple developer ecosystem. So far I have encountered three user interface components in the tooling that I trip me up. The first is Interface Builder (IB). This tool is separate from the XCode IDE. I typically forget to save changes. In my mind XCode and IB are one and so I expect my changes to be saved when I build. I usually end up with a blank screen and then I remember: save in IB! In XCode 4 IB is supposed to be integrated so hopefully this issue is fixed. On the code side of things all the UI pointers are nil. In Objective C it is perfectly valid to send messages to those nil objects. Personally, I would like to fail fast and have the program crash as I think that would help me find the root cause quicker. Second, when opening older projects I often get the “Base SDK is missing” error. It’s easy to change in the project’s build settings but after the change it seems you must reload the project in XCode. It wasn’t entirely obvious at first but restarting an application usually fixes everything regardless of the platform. Finally, I wanted to see how my custom drawRect: code was visually different on the retina display versus the old display. I checked out an older device from work and took it too my office and tried to provision only to receive this error message:</p>
+<p><img alt="silly ui" src="../static/img/silly-apple-ui.png" /></p>
+<p>Only one developer gets to register a device I figured. I searched the internet a bit and finally decided I would just provision the device as a tester’s device. While I was looking for the page to do that I found my device list had two devices listed. That was odd because I only expected to see my iPod listed. I looked at the second device and sure enough it had the same ID number as the device I had checked out. The dialog meant to add devices didn’t tell me it had done this. It only displayed an error message asking for another ID number. Overall the tooling is pretty good and it does not get in the way that often.</p>
+    </div>
+  </div>
+  
+
+  <div class="row">
+    <div class="twocol"></div>
+    <div class="eightcol newer-older">
+      <div class="newer-posts" style="visibility:visible;"><a href="../pages/0.html">Newer</a></div>
+      <div class="older-posts" style="visibility:visible;"><a href="../pages/2.html">Older</a></div>
+    </div>
+  </div>
+
+
+      <!-- Footer -->
+      <div class="row">
+        <div class="twocol"></div>
+        <div class="eightcol blog-footer">
+          Copyright © 2012 - Evan Long
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>

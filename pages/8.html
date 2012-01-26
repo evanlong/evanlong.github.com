@@ -50,6 +50,116 @@
   <div class="row post-container">
     <div class="twocol"></div>
     <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-7-2-3-34-Maximize-the-profit.html">Maximize the profit</a></div>
+      <div class="post-date">July 02, 2008</div>
+      <p>I decided to title these entries with something more related to the title. Here's today's problem:</p>
+<blockquote>
+<p>Given a matrix of profit where each row represents a worker and each column represents a job maximize the profit by assigning each worker to a specific job. It is only one employee per job and one job per employee. Even if each each could make $1000 dollars on job 1 they all could not be tasked with job 1. Each job will be assigned exactly ONCE and each employee will be assigned exactly ONCE. The matrix will be NxN. The entries will be positive integers. You must return the assignment in some reasonable form. For example this string: "0-&gt;1, 1-&gt;2, 2-&gt;0" would indicate that employee 0 is doing job 1 and employee 1 is doing job 2...</blockquote>To solve this I will use a recursive dynamic programming solution which would take O(n!) time but since this problems has LOTS of overlapping subproblems my memoization decorator can be used in this problem.</p>
+</blockquote>
+<p>The idea behind the recursive solution is something like this:</p>
+<p><img alt="profit" src="http://www.codecogs.com/eq.latex?profit%28w,&amp;space;jobId%29&amp;space;=&amp;space;max%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D&amp;space;costOf%28w_1,jobId%29&amp;space;+&amp;space;profit%28w-w_1,jobId+1%29%5C%5C&amp;space;&amp;space;costOf%28w_2,jobId%29&amp;space;+&amp;space;profit%28w-w_2,jobId+1%29%5C%5C&amp;space;...%5C%5C&amp;space;costOf%28w_n,jobId%29&amp;space;+&amp;space;profit%28w-w_n,jobId+1%29&amp;space;&amp;space;%5Cend%7Bmatrix%7D%5Cright" /></p>
+<ul>
+<li>w is a list of workers</li>
+<li>w (subscript) i is the ith element in w</li>
+<li>w-w (subscript) n indicates removal of that element from the list</li>
+<li>The costOf function is the cost of assigning a worked to a specific jobId. It ends up being a lookup in the matrix in my case</li>
+</ul>
+<p>At each point we enumerate all possible job assignments a worker (A) may have and then enumerate all the job assignments their coworkers may have as a result of assigning worker (A) to each of those jobs. We end up doing this until we run out of possible assignments. This ends up being a brute force approach but just like fibonacci we can draw out the recursive calls that take place and see that there will end up being a LOT of overlapping recursive calls. That is, recursive calls to the <em>profit</em> function end up calling it with the same parameters over and over again. We can use memoization to speed things up quite a bit. That's what I do in this case.</p>
+<p>Here is the code that I attempted to explain above. Good luck. It's not easy. But try banging your head against it for a while. There are also other ways to solve this problem. Some of them a lot faster because my solution uses a lot of recursion. I'll provide a list of other possible ways to solve it at the bottom.</p>
+<div class="codehilite"><pre><span class="c1">#my modified memoization function to support list hashing (its a hack)</span>
+<span class="n">def</span> <span class="n">mem</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="n">mem</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">def</span> <span class="n">mod</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">arg_list</span> <span class="o">=</span> <span class="o">[]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="n">in</span> <span class="n">args:</span>
+            <span class="n">try:</span>
+                <span class="n">arg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tuple</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+            <span class="n">except:</span>
+                <span class="n">arg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">tuple</span><span class="p">(</span><span class="n">arg_list</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">mem</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">return</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">mod</span>
+
+<span class="n">def</span> <span class="n">profitimize</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+    <span class="n">plist</span> <span class="o">=</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
+    <span class="n">def</span> <span class="n">costMapping</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="n">in</span> <span class="n">m:</span>
+            <span class="n">tmp</span> <span class="o">+=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="sr">m[k]</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+
+    <span class="nv">@mem</span>
+    <span class="n">def</span> <span class="n">profit</span><span class="p">(</span><span class="n">people</span><span class="p">,</span> <span class="n">jobId</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">people</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">currCost</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">bestPerson</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="n">in</span> <span class="n">people:</span>
+            <span class="n">indyCost</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">person</span><span class="p">][</span><span class="n">jobId</span><span class="p">]</span>
+            <span class="n">newPeople</span> <span class="o">=</span> <span class="n">list</span><span class="p">(</span><span class="n">people</span><span class="p">)</span>
+            <span class="n">newPeople</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">dict</span><span class="p">(</span><span class="n">profit</span><span class="p">(</span><span class="n">newPeople</span><span class="p">,</span> <span class="n">jobId</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">indyCost</span> <span class="o">+=</span> <span class="n">costMapping</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">currCost</span> <span class="o">&lt;</span> <span class="n">indyCost:</span>
+                <span class="n">currCost</span> <span class="o">=</span> <span class="n">indyCost</span>
+                <span class="n">mapping</span> <span class="o">=</span> <span class="n">result</span>
+                <span class="n">bestPerson</span> <span class="o">=</span> <span class="n">person</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="n">bestPerson</span><span class="p">]</span> <span class="o">=</span> <span class="n">jobId</span>
+
+        <span class="k">return</span> <span class="n">mapping</span>
+    <span class="k">return</span> <span class="n">profit</span><span class="p">(</span><span class="n">plist</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">matrix4</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">],[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">]]</span>
+    <span class="n">matrix7</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">64</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">23</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">23</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">73</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">12</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">65</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">]]</span>
+    <span class="n">matrix10</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">25</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="mi">63</span><span class="p">,</span><span class="mi">12</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">75</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">86</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">45</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">36</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">53</span><span class="p">]]</span>
+    <span class="n">matrix10_2</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">matrix2</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">profitimize</span><span class="p">(</span><span class="n">matrix10_2</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">result</span>
+</pre></div>
+
+
+<p>Couple of other techniques:
+<em> <a href="http://en.wikipedia.org/wiki/Hungarian_algorithm">http://en.wikipedia.org/wiki/Hungarian_algorithm</a>
+</em> <a href="http://en.wikipedia.org/wiki/Matching">http://en.wikipedia.org/wiki/Matching</a></p>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
       <div class="post-title"><a href="../posts/2008-6-29-1-28-interview-prep-part-6-&-7.html">interview prep part 6 & 7</a></div>
       <div class="post-date">June 29, 2008</div>
       <p>Today is a two-for-one deal since I forgot to post anything yesterday.</p>
@@ -191,34 +301,6 @@ memoization.</p>
         <span class="n">s</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">print</span> <span class="n">dead</span><span class="p">([</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ss</span><span class="p">)</span>
 </pre></div>
-    </div>
-  </div>
-  
-  <div class="row post-container">
-    <div class="twocol"></div>
-    <div class="eightcol post">
-      <div class="post-title"><a href="../posts/2008-6-25-3-38-interview-prep-part-3.html">interview prep part 3</a></div>
-      <div class="post-date">June 25, 2008</div>
-      <p>I have been asked to do basic string problems before. The problem for today:</p>
-<blockquote>
-<p>Given a string, print out each character that appears, the number of times that it appears and it must be done in the order the characters appear in the original string. And it must be done in O(n) time.</p>
-</blockquote>
-<div class="codehilite"><pre><span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-   <span class="n">seenMap</span> <span class="o">=</span> <span class="p">{}</span>
-   <span class="n">orderList</span> <span class="o">=</span> <span class="p">[]</span>
-
-   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-       <span class="k">if</span> <span class="ow">not</span> <span class="n">seenMap</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
-           <span class="n">orderList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-           <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-       <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">orderList</span><span class="p">:</span>
-       <span class="k">print</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-</pre></div>
-
-
-<p>The important thing here is to do it in O(n) time. It is easy to get trapped and do this in polynomial time. The trick here is to use a list to store the order that characters appear and to use a dictionary to keep track of if a character has been seen and how many times it has been seen. Provided that the has_key function has O(1) running time my algorithm is O(n).</p>
     </div>
   </div>
   

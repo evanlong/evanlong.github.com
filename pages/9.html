@@ -50,34 +50,6 @@
   <div class="row post-container">
     <div class="twocol"></div>
     <div class="eightcol post">
-      <div class="post-title"><a href="../posts/2008-6-25-3-38-interview-prep-part-3.html">interview prep part 3</a></div>
-      <div class="post-date">June 25, 2008</div>
-      <p>I have been asked to do basic string problems before. The problem for today:</p>
-<blockquote>
-<p>Given a string, print out each character that appears, the number of times that it appears and it must be done in the order the characters appear in the original string. And it must be done in O(n) time.</p>
-</blockquote>
-<div class="codehilite"><pre><span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-   <span class="n">seenMap</span> <span class="o">=</span> <span class="p">{}</span>
-   <span class="n">orderList</span> <span class="o">=</span> <span class="p">[]</span>
-
-   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-       <span class="k">if</span> <span class="ow">not</span> <span class="n">seenMap</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
-           <span class="n">orderList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-           <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-       <span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">orderList</span><span class="p">:</span>
-       <span class="k">print</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seenMap</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-</pre></div>
-
-
-<p>The important thing here is to do it in O(n) time. It is easy to get trapped and do this in polynomial time. The trick here is to use a list to store the order that characters appear and to use a dictionary to keep track of if a character has been seen and how many times it has been seen. Provided that the has_key function has O(1) running time my algorithm is O(n).</p>
-    </div>
-  </div>
-  
-  <div class="row post-container">
-    <div class="twocol"></div>
-    <div class="eightcol post">
       <div class="post-title"><a href="../posts/2008-6-24-1-59-interview-prep-part-2.html">interview prep part 2</a></div>
       <div class="post-date">June 24, 2008</div>
       <p>This might be a pretty common interview question. I personally have never been asked it but it seems like a reasonable technical question. The problem today:</p>

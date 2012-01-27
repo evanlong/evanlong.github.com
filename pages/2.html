@@ -50,17 +50,6 @@
   <div class="row post-container">
     <div class="twocol"></div>
     <div class="eightcol post">
-      <div class="post-title"><a href="../posts/2011-1-24-7-28-silly-apple-ui.html">silly apple ui</a></div>
-      <div class="post-date">January 24, 2011</div>
-      <p>I have been working my way through the Stanford iOS programming course. It’s been my biggest exposure to the Apple developer ecosystem. So far I have encountered three user interface components in the tooling that I trip me up. The first is Interface Builder (IB). This tool is separate from the XCode IDE. I typically forget to save changes. In my mind XCode and IB are one and so I expect my changes to be saved when I build. I usually end up with a blank screen and then I remember: save in IB! In XCode 4 IB is supposed to be integrated so hopefully this issue is fixed. On the code side of things all the UI pointers are nil. In Objective C it is perfectly valid to send messages to those nil objects. Personally, I would like to fail fast and have the program crash as I think that would help me find the root cause quicker. Second, when opening older projects I often get the “Base SDK is missing” error. It’s easy to change in the project’s build settings but after the change it seems you must reload the project in XCode. It wasn’t entirely obvious at first but restarting an application usually fixes everything regardless of the platform. Finally, I wanted to see how my custom drawRect: code was visually different on the retina display versus the old display. I checked out an older device from work and took it too my office and tried to provision only to receive this error message:</p>
-<p><img alt="silly ui" src="../static/img/silly-apple-ui.png" /></p>
-<p>Only one developer gets to register a device I figured. I searched the internet a bit and finally decided I would just provision the device as a tester’s device. While I was looking for the page to do that I found my device list had two devices listed. That was odd because I only expected to see my iPod listed. I looked at the second device and sure enough it had the same ID number as the device I had checked out. The dialog meant to add devices didn’t tell me it had done this. It only displayed an error message asking for another ID number. Overall the tooling is pretty good and it does not get in the way that often.</p>
-    </div>
-  </div>
-  
-  <div class="row post-container">
-    <div class="twocol"></div>
-    <div class="eightcol post">
       <div class="post-title"><a href="../posts/2011-1-17-7-28-facebook-ads.html">facebook ads</a></div>
       <div class="post-date">January 17, 2011</div>
       <p>If Facebook ads are any indicator of the health of the economy then it must be great. For the past 2-3 months I have noticed an increase in the number of job ads. I think the cause might be one or a combination of the following:</p>
@@ -86,6 +75,17 @@
       <div class="post-title"><a href="../posts/2010-4-25-22-23-my-next-side-project.html">my next side project</a></div>
       <div class="post-date">April 25, 2010</div>
       <p>For my next side project I am going to create a webapp that allows site maintainers to track what a user is doing with the UI of their site and view this in realtime. My plan is to record things like mouse position, window size and page content and push it all back to the server. It can be a poor man's usability study or simply used as a big brother tool by site maintainers. Either way it should be interesting.</p>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2010-2-28-23-56-tetris-with-twilio.html">tetris with twilio</a></div>
+      <div class="post-date">February 28, 2010</div>
+      <p>Last month I created <a href="http://tetris.evanlong.info/">Tetris with Twilio</a>. It allows any telephone (USA only) to be used as an input device to a game of tetris that is played within a web browser. The best part is that once you clear 5 lines your phone is redirected to me and I'll probably pick up and talk to you.</p>
+<p>How does it work? I use <a href="http://www.twilio.com/">http://www.twilio.com/</a> to deal with input from the phone. The main purpose of this project was to learn more about <a href="http://www.tornadoweb.org/">http://www.tornadoweb.org/</a>. Tornado makes it easy to push data to the user in realtime. And for those that like source code it is available <a href="http://bitbucket.org/evanlong/twilio-tetris-game/">here</a>.</p>
+<p>Enjoy!</p>
     </div>
   </div>
   

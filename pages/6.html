@@ -50,127 +50,6 @@
   <div class="row post-container">
     <div class="twocol"></div>
     <div class="eightcol post">
-      <div class="post-title"><a href="../posts/2008-8-2-22-15-RESTful-Python.html">RESTful Python</a></div>
-      <div class="post-date">August 02, 2008</div>
-      <p>My end goal is to make a tool that allows developers to describe their REST API in some sort of markup and then generate libraries that communicate with the server. The tool would generate language specific libraries that abstract away communication with the server. I also hope to provide someway to map between the XML/JSON that the server returns and objects that are defined by the user. I think the real benefit of this will be that developers won't have to write a new library for each language they wish to support on the client side. It seems like the community is responsible for building libraries for the different languages but it would be nice if it were a little more streamlined. </p>
-<p>This snippet of code is simple but just the start. It just allows a way to use a python decorator to define the services interface and then the user can use the decorated function to actually communicate with the server. At the bottom I have already defined a couple of functions using the Twitter and Pownce APIs.</p>
-<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">urllib</span>
-<span class="kn">import</span> <span class="nn">re</span>
-
-<span class="k">class</span> <span class="nc">WebApiOpener</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">FancyURLopener</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Provides a way for HTTP Basic authentication to take place without</span>
-<span class="sd">    prompting the user for a username and password like FancyURLopener</span>
-<span class="sd">    would.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
-        <span class="n">urllib</span><span class="o">.</span><span class="n">FancyURLopener</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
-
-    <span class="k">def</span> <span class="nf">prompt_user_passwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">realm</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">webcall</span><span class="p">(</span><span class="o">**</span><span class="n">apiargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Decorator that is used to create a python function that communicates with</span>
-<span class="sd">    a RESTful web service. The function it generates will be able to to do HTTP</span>
-<span class="sd">    basic authorization. The generated function only accepts a keyword </span>
-<span class="sd">    arguments. The following are reserved arguments:</span>
-<span class="sd">        auth_username, string optional, only needed if web service needs </span>
-<span class="sd">        basic HTTP auth</span>
-<span class="sd">        auth_password, string optional, only needed if web service needs</span>
-<span class="sd">        basic HTTP auth</span>
-<span class="sd">    All other arguments will be used to first replace variables within the url</span>
-<span class="sd">    and the remaining arguments will be passed as part of the parameter string.</span>
-<span class="sd">    Take a look at the documentation below and the examples to get an idea of </span>
-<span class="sd">    how to define variables within the url string.</span>
-
-<span class="sd">    webcall Arguments: apiargs, keyword list of arguments</span>
-<span class="sd">        apiargs[&#39;url&#39;], string, The url of the web service. Specify variables </span>
-<span class="sd">        for within the url like this: {var_name=default_value} or {var_name}. </span>
-<span class="sd">        These will be filled in when the user actually calls the decorated </span>
-<span class="sd">        function.</span>
-
-<span class="sd">        apiargs[&#39;method&#39;], string optional, Defaults to GET if not defined. If</span>
-<span class="sd">        it is defined to something besides GET it will use POST.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">        #Here we define a call to twitter:</span>
-<span class="sd">        @webcall(url=&#39;http://twitter.com/statuses/friends_timeline.{format=json}&#39;, method=&#39;GET&#39;)</span>
-<span class="sd">        def friends_timeline(): pass</span>
-
-<span class="sd">        #returns a a json string for this specific twitter call</span>
-<span class="sd">        friends_timeline(auth_username=&#39;bob&#39;, auth_password=&#39;password&#39;)</span>
-
-<span class="sd">        #Looking at the twitter documentation we see that this takes in other</span>
-<span class="sd">        #parameters like since, since_id, count, page.</span>
-<span class="sd">        #we will also get the RSS formatted response and limit it to two</span>
-<span class="sd">        friends_timeline(auth_username=&#39;bob&#39;, auth_password=&#39;password&#39;, count=2, format=&#39;rss&#39;)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">method</span> <span class="o">=</span> <span class="n">apiargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;method&#39;</span><span class="p">,</span><span class="s">&#39;GET&#39;</span><span class="p">)</span>
-    <span class="n">patter_obj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;\{[^\}]+\}&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">dec</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">convert_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">replace_dict</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">patter_obj</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-                <span class="c">#figure if the key is in the dict if not and there is</span>
-                <span class="c">#no default value then don&#39;t replace and continue on</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">pair</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
-                <span class="c">#if there is a default value and key not in dict use default</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">replace_dict</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">replace_dict</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="n">replace_dict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-                    <span class="c">#this allow for a {key} to only be user once but this could</span>
-                    <span class="c">#be changed in the future</span>
-                    <span class="k">del</span><span class="p">(</span><span class="n">replace_dict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-            <span class="k">return</span> <span class="n">url</span>
-
-        <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">            auth_username and auth_password are reserved</span>
-<span class="sd">            &#39;&#39;&#39;</span>
-            <span class="n">opener</span> <span class="o">=</span> <span class="n">WebApiOpener</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;auth_username&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">),</span>
-                <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;auth_password&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;auth_username&#39;</span><span class="p">):</span> <span class="k">del</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;auth_username&#39;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;auth_password&#39;</span><span class="p">):</span> <span class="k">del</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;auth_password&#39;</span><span class="p">])</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">convert_url</span><span class="p">(</span><span class="n">apiargs</span><span class="p">[</span><span class="s">&#39;url&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s">&#39;GET&#39;</span><span class="p">:</span>
-                <span class="n">stream</span> <span class="o">=</span> <span class="n">opener</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s">&quot;?&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">stream</span> <span class="o">=</span> <span class="n">opener</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">response</span>
-        <span class="k">return</span> <span class="n">new</span>
-    <span class="k">return</span> <span class="n">dec</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">A set of example functions from pownce and twitter</span>
-<span class="sd">&#39;&#39;&#39;</span>
-
-<span class="nd">@webcall</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;http://twitter.com/statuses/public_timeline.{format=json}&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">public_timeline</span><span class="p">():</span> <span class="k">pass</span>
-
-<span class="nd">@webcall</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;http://twitter.com/statuses/friends_timeline.{format=json}&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">friends_timeline</span><span class="p">():</span> <span class="k">pass</span>
-
-<span class="nd">@webcall</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;http://twitter.com/statuses/user_timeline.{format=json}&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">user_timeline</span><span class="p">():</span> <span class="k">pass</span>
-
-<span class="nd">@webcall</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;http://api.pownce.com/2.0/note_lists/{username}.{format=json}&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">pownce_note_list</span><span class="p">():</span> <span class="k">pass</span>
-
-<span class="nd">@webcall</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;http://api.pownce.com/2.0/send/link.{format=json}&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;POST&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">pownce_send_link</span><span class="p">():</span> <span class="k">pass</span>
-</pre></div>
-    </div>
-  </div>
-  
-  <div class="row post-container">
-    <div class="twocol"></div>
-    <div class="eightcol post">
       <div class="post-title"><a href="../posts/2008-7-22-1-15-python-tree.html">python tree</a></div>
       <div class="post-date">July 22, 2008</div>
       <p>I implement a simple tree with the DFS and BFS defined using python generators.</p>
@@ -223,6 +102,43 @@
       <div class="post-date">July 13, 2008</div>
       <p>I have been busy this past week but I got a chance to create a new chipmark feature. It's not actually on your our <a href="https://www.chipmark.com">https://www.chipmark.com</a> server but I wrote an app Google App Engine that downloads your public bookmarks and puts them in an RSS feed. The downside of the app is that users must provide there username and password. It would be nice if we implemented OAuth on Chipmark so third party apps could be allowed access to the account without the user having to give their password away to the app. One goal this past year was to implement mashups with chipmark. Currently, we do not have a method that allow users to expose their public chipmarks. For right now the app engine app is the only way to embed a feed of your chipmarks in a website. Take a look at the sidebar and you'll see some of my recent chipmarks.</p>
 <p>I should mention I thought of doing this after seeing this in my feed reader yesterday: <a href="http://torrentfreak.com/automate-your-bittorrent-downloads-with-mininova-bookmarks-080709/">remote torrent</a>.</p>
+    </div>
+  </div>
+  
+  <div class="row post-container">
+    <div class="twocol"></div>
+    <div class="eightcol post">
+      <div class="post-title"><a href="../posts/2008-7-7-1-58-A-simple-stack-machine.html">A simple stack machine</a></div>
+      <div class="post-date">July 07, 2008</div>
+      <p>A lot of popular virtual machines are stack based. The instruction sets take their inputs from a stack and then place their outputs on the same stack. It's pretty simple at face value but the virtual machines end up doing a lot of fancy things behind the scenes to make the code run fast. </p>
+<p>Today I implement a REALLY REALLY BASIC stack based virtual machine that does basic math.</p>
+<div class="codehilite"><pre><span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">def</span> <span class="nf">e</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">s</span>
+    <span class="n">f</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;add&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()+s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;dup&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s[-1])&#39;</span><span class="p">,</span>
+       <span class="s">&#39;sub&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()-s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;mul&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()*s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;div&#39;</span> <span class="p">:</span> <span class="s">&#39;s.append(s.pop()/s.pop())&#39;</span><span class="p">,</span>
+       <span class="s">&#39;peak&#39;</span> <span class="p">:</span> <span class="s">&#39;print s[-1]&#39;</span><span class="p">,</span>
+       <span class="s">&#39;out&#39;</span> <span class="p">:</span> <span class="s">&#39;print s.pop()&#39;</span>
+       <span class="p">}[</span><span class="n">cmd</span><span class="p">]</span>
+    <span class="k">exec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;dup&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;mul&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;sub&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;peak&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The key of the dictionary is the instruction and the value defines what the instruction does.</p>
     </div>
   </div>
   
